@@ -15,9 +15,10 @@ def detectionAccuracy(maskDetected, maskCorrect):
     union = np.sum(blendedGrey == 128) + np.sum(blendedGrey == 75) + intersection
     accuracy = round(intersection/union, 3)
 
-    # cv.imshow('blended', blendedGrey)
-    # cv.waitKey(0)
-    # print(accuracy)
+    if accuracy > 0:
+        cv.imshow('blended', blendedGrey)
+        cv.waitKey(0)
+        print(accuracy)
 
     return accuracy
 
@@ -47,29 +48,22 @@ def detectEars(testImage, scale, neighbours):
     return maskDetected
 
 
-if __name__ == '__main__':
+def runDetector(scaleFactor, nOfNeighbours):
     testImageDir = 'AWEForSegmentation/test/'
     maskImageDir = 'AWEForSegmentation/testannot_rect/'
 
     testImageFilenames = sorted(os.listdir(testImageDir))
+    accuracies = []
 
-    for scale in np.arange(1.01, 1.5, 0.05):
-        for neighbours in range(1, 6, 1):
-            accuracies = []
+    for filename in testImageFilenames:
+        testImage = cv.imread(testImageDir + filename)
 
-            print(f'Parameters: scale factor {scale}, minNeighbours {neighbours}')
+        try:
+            maskDetected = detectEars(testImage, scaleFactor, nOfNeighbours)
+            maskCorrect = cv.imread(maskImageDir + filename)
+            accuracy = detectionAccuracy(maskDetected, maskCorrect)
+            accuracies.append(accuracy)
+        except:
+            print(f'There was an exception during detecting ears in file {filename}')
 
-            for filename in testImageFilenames:
-                testImage = cv.imread(testImageDir + filename)
-
-                try:
-                    maskDetected = detectEars(testImage, scale, neighbours)
-                    maskCorrect = cv.imread(maskImageDir + filename)
-                    accuracy = detectionAccuracy(maskDetected, maskCorrect)
-                    accuracies.append(accuracy)
-                    # print(filename, accuracy)
-                except:
-                    print(f'There was an exception during detecting ears in file {filename}')
-
-            print(f'Average detection accuracy: {mean(accuracies)}\n')
-        print()
+    return mean(accuracies)
