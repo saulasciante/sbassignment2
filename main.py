@@ -57,6 +57,8 @@ if __name__ == '__main__':
         for neighbours in range(1, 6, 1):
             accuracies = []
 
+            print(f'Parameters: scale factor {scale}, minNeighbours {neighbours}')
+
             for filename in testImageFilenames:
                 testImage = cv.imread(testImageDir + filename)
 
@@ -69,5 +71,5 @@ if __name__ == '__main__':
                 except:
                     print(f'There was an exception during detecting ears in file {filename}')
 
-            print(f'Average detection accuracy: {mean(accuracies)} with scale {scale} and neighbours {neighbours}')
+            print(f'Average detection accuracy: {mean(accuracies)}\n')
         print()
